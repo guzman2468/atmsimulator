@@ -3,6 +3,7 @@ from gui import *
 import csv
 import os
 
+
 #add account number input box (done)
 #if pin is invalid, display a clearer message (done)
 #create a unique account number so 2 people can have the same pin and same name but have a different account number (done)
@@ -86,7 +87,7 @@ class Logic(QMainWindow, Ui_mainWindow):
 
     def acc_create(self) -> None:
         """
-        Create a new account with the provided details and initial balance.
+        Creates a new account with the provided details and initial balance.
         """
         initial_balance = 100
         csv_file = 'data.csv'
@@ -97,23 +98,27 @@ class Logic(QMainWindow, Ui_mainWindow):
                 raise ValueError("All fields must be filled.")
             elif len(self.get_account_num()) != 4 or len(self.get_pin()) != 4:
                 raise ValueError("Account number and PIN must be 4 digits")
-            with open(csv_file, 'r') as infile:
-                reader = csv.reader(infile)
-                for row in reader:
-                    if row[0] == self.get_first() and row[1] == self.get_last() and row[2] == self.get_account_num():
-                        raise ValueError("Account already exists, please login.")
-                    elif row[2] == self.get_account_num():
-                        raise ValueError("Account number is already taken, please choose another.")
-            account_num = int(self.get_account_num())
-            pin = int(self.get_pin())
+
+            if file_exists:
+                with open(csv_file, 'r') as infile:
+                    reader = csv.reader(infile)
+                    for row in reader:
+                        if len(row) < 5:
+                            continue  #verifies only rows that have the length expectations are read
+                        if row[0] == self.get_first() and row[1] == self.get_last() and row[
+                            2] == self.get_account_num():
+                            raise ValueError("Account already exists, please login.")
+                        elif row[2] == self.get_account_num():
+                            raise ValueError("Account number is already taken, please choose another.")
+
             with open(csv_file, 'a', newline='') as infile:
                 writer = csv.writer(infile)
-
                 if not file_exists:
                     writer.writerow(['First', 'Last', 'Account#', 'PIN', 'Balance'])
-
-                writer.writerow([self.get_first(), self.get_last(), self.get_account_num(), self.get_pin(), initial_balance])
+                writer.writerow(
+                    [self.get_first(), self.get_last(), self.get_account_num(), self.get_pin(), initial_balance])
                 self.status_label.setText('Account created! Please log in.')
+
         except ValueError as e:
             self.status_label.setWordWrap(True)
             self.status_label.setText(str(e))
@@ -126,6 +131,8 @@ class Logic(QMainWindow, Ui_mainWindow):
         last_name = self.get_last()
         account_num = self.get_account_num()
         pin = self.get_pin()
+        csv_file = 'data.csv'
+        file_exists = os.path.isfile(csv_file)
 
         self.withdraw_button.setChecked(False)
         self.deposit_button.setChecked(False)
@@ -133,6 +140,8 @@ class Logic(QMainWindow, Ui_mainWindow):
         try:
             if first_name == '' or last_name == '' or account_num == '' or pin == '':
                 raise ValueError("All fields must be filled.")
+            if not os.path.isfile(csv_file):
+                raise ValueError("No accounts exist yet. Please create an account proceed.") #shows if csv file hasn't been created yet
             account_num = int(account_num)
             pin = int(pin)
             account_found = False
@@ -151,14 +160,15 @@ class Logic(QMainWindow, Ui_mainWindow):
                             self.withdraw_button.setVisible(True)
                             self.deposit_button.setVisible(True)
                             self.appear()
-                            return # login succesful
+                            return  # login succesful
                         else:
                             incorrect_pin = True
                             break  #if code reaches here, then it means you have the wrong pin
             if incorrect_pin:
                 raise ValueError("Incorrect PIN, please try again.")
             elif not account_found:
-                raise ValueError("No account found with those details. Please verify account number and other details are correct.")
+                raise ValueError(
+                    "No account found with those details. Please verify account number and other details are correct.")
         except ValueError as e:
             self.status_label.setWordWrap(True)
             self.status_label.setText(str(e))
@@ -190,7 +200,8 @@ class Logic(QMainWindow, Ui_mainWindow):
                     raise ValueError("Withdrawal amount must be positive")
 
                 self.set_balance(self.get_balance() - amount)
-                self.update_csv(self.get_first(), self.get_last(), self.get_account_num(), self.get_pin(), self.get_balance())
+                self.update_csv(self.get_first(), self.get_last(), self.get_account_num(), self.get_pin(),
+                                self.get_balance())
                 self.acc_details.setWordWrap(True)
                 self.acc_details.setText(f'You withdrew: ${amount:.2f}. '
                                          f'                          Your new balance is: ${self.get_balance():.2f}')
@@ -205,7 +216,8 @@ class Logic(QMainWindow, Ui_mainWindow):
                     raise ValueError("Deposit amount must be positive")
 
                 self.set_balance(self.get_balance() + amount)
-                self.update_csv(self.get_first(), self.get_last(), self.get_account_num(), self.get_pin(), self.get_balance())
+                self.update_csv(self.get_first(), self.get_last(), self.get_account_num(), self.get_pin(),
+                                self.get_balance())
                 self.acc_details.setWordWrap(True)
                 self.acc_details.setText(f'You deposited: ${amount:.2f}. '
                                          f'                          Your new balance is: ${self.get_balance():.2f}')
@@ -232,7 +244,8 @@ class Logic(QMainWindow, Ui_mainWindow):
         with open(csv_file, 'r', newline='') as infile:
             reader = csv.reader(infile)
             for row in reader:
-                if row[0].lower() == first_name.lower() and row[1].lower() == last_name.lower() and row[2] == str(account_num) and row[3] == str(pin):
+                if row[0].lower() == first_name.lower() and row[1].lower() == last_name.lower() and row[2] == str(
+                        account_num) and row[3] == str(pin):
                     row[4] = new_balance
                 rows.append(row)
 
