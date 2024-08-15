@@ -110,7 +110,7 @@ class Logic(QMainWindow, Ui_mainWindow):
                 writer = csv.writer(infile)
 
                 if not file_exists:
-                    writer.writerow(['First', 'Last', 'PIN', 'Balance'])
+                    writer.writerow(['First', 'Last', 'Account#', 'PIN', 'Balance'])
 
                 writer.writerow([self.get_first(), self.get_last(), self.get_account_num(), self.get_pin(), initial_balance])
                 self.status_label.setText('Account created! Please log in.')
