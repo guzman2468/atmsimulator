@@ -141,7 +141,7 @@ class Logic(QMainWindow, Ui_mainWindow):
             if first_name == '' or last_name == '' or account_num == '' or pin == '':
                 raise ValueError("All fields must be filled.")
             if not os.path.isfile(csv_file):
-                raise ValueError("No accounts exist yet. Please create an account proceed.") #shows if csv file hasn't been created yet
+                raise ValueError("No accounts exist yet. Please create an account to proceed.") #shows if csv file hasn't been created yet
             account_num = int(account_num)
             pin = int(pin)
             account_found = False
