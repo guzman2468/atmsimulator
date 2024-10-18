@@ -1,3 +1,5 @@
-To run application, download all files into the same folder in the same location on your computer.
+To run the application, download all files into the same folder in the same location on your computer. Please install the PyQt6 python package as well.
 
-Note: data csv file was deleted because I realized that when the application is ran successfully, a data.csv file will be created in the same location where you are running the application from.
+NOTE: PLEASE DO NOT ENTER ANY SENSITIVE INFORMATION INTO THE PROJECT, also a data.csv file will be created on your local machine once the project is run.
+
+
